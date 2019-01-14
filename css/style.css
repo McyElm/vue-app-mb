@@ -1,0 +1,140 @@
+body, html {
+    height: 100%;
+}
+.add_device_p {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.font_box {
+    display: flex;
+    width: 48%;
+    height: 2rem;
+    background-color: #5fb286;
+    color: white;
+    border-radius: 5px;
+    margin-top: 10px;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, .26);
+    -webkit-box-shadow: 0 2px 5px 0 rgba(0, 0, 0, .26);
+}
+
+.font_box_icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    background-color: white;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 1.25rem;
+    color: #5fb286;
+    margin: auto;
+    font-size: 24px;
+}
+
+.font_box_text {
+    width: 60%;
+    text-align: center;
+    line-height: 2.2rem;
+    font-size: 14px;
+}
+
+a {
+    text-decoration: none;
+}
+
+.add_device_p .button {
+    width: 48%;
+    height: 2.2rem;
+    line-height: 2.2rem;
+}
+
+.add_device_p .button .icon {
+    font-size: 1.25rem;
+}
+
+.add_device_p .button-energized {
+    display: flex;
+    justify-content: space-around;
+    font-size: 14px;
+}
+
+.list {
+    margin-bottom: 0px;
+}
+
+.slide-fade {
+    position: absolute;
+    left: 0;
+    right: 0;
+}
+
+.slide-fade-enter-active {
+    transition: all .3s;
+}
+
+.slide-fade-leave-active {
+
+    transition: all .1s cubic-bezier(2.0, 0.5, 0.8, 1.0);
+}
+
+.slide-fade-enter, .slide-fade-leave-to {
+    left: 0;
+    right: 0;
+    transform: translateX(50px);
+    opacity: 0;
+}
+
+#signin_page .page-content {
+    background-image: url("../images/app_background.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.von-input-wrapper .von-input {
+    padding: 13px 12px;
+}
+
+.toggle.toggle-balanced input:checked + .track {
+    border-color: #4a90e2;
+    background-color: #4a90e2;
+}
+
+.von-cascade {
+    padding-left: 15px;
+}
+.username{
+    display: flex;
+    width: 100%;
+    height:2.13rem;
+    background-image: url("../images/kuan.png");
+    background-size: 100% ;
+    background-repeat: no-repeat;
+    background-position: center center;
+    line-height: 2.13rem;
+    align-items:center;
+    justify-content: flex-start;
+    padding-left: 1.06rem;
+}
+.username_a{
+    text-align: center;
+    color: #588ef0;
+}
+.username_b{
+    height: 1.41rem;
+    line-height: 1.41rem;
+}
+.username .hairline-bottom:after, .hairline-top:before{
+    background-color: transparent;
+}
+.username .von-input-wrapper .von-input{
+    background: none;
+    height: 1.41rem;
+    line-height: 1.41rem;
+}
+.username .hairline-bottom:after, .hairline-top:before{
+    background-color: transparent;
+}
+.item{
+    margin-bottom: 1px;
+}

@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1.0, user-scalable=no">
+    <!--<link rel="stylesheet" href="https://unpkg.com/vonic@2.0.0-beta.11/dist/vonic.min.css">-->
+    <script src="js/flexible.js"></script>
+    <link rel="stylesheet" href="font/iconfont.css">
+    <link rel="stylesheet" href="css/vonic.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<!-- mount point -->
+<von-app></von-app>
+<!-- templates -->
+<script type="x-template" id="index">
+    <div class="page"
+         v-tabbar="{'menus': menus,menuIndex:'1', menuColor: '#B5B5B5', activeMenuColor: '#0894ec', onMenuClick: menuClicked}">
+        <von-header>
+            <button class="button button-icon ion-ios-arrow-back" slot="left" v-if="left_button"
+                    v-on:click="back"></button>
+            <span slot="title" v-text="title"></span>
+            <button class="button button-icon ion-navicon" slot="right" v-if="right_button"
+                    v-on:click="system"></button>
+        </von-header>
+        <transition name="slide-fade">
+            <router-view @childByValue="childByValue"></router-view>
+        </transition>
+    </div>
+</script><!--底部菜单-->
+<script type="text/x-template" id="home">
+    <div class="page has-navbar has-tabbar" v-nav="{hideNavbar: true}" v-tabbar-menu-index="0">
+        <div class="page-content padding text-center">
+            <h2 class="padding"></h2>
+            <div class="add_device_p">
+                <md-button class="font_box button button-energized " v-on:click.native="to_add"
+                           style="background-color: #5ab884">
+                    <i class="font_box_icon iconfont icon-tianjia"></i>
+                    <div class="font_box_text">添加设备</div>
+                </md-button>
+                <md-button class="font_box button button-energized " v-on:click.native="to_eid"
+                           style="background-color: #ff6e6e">
+                    <i class="font_box_icon iconfont icon-qiehuan" style="color: #ff6e6e"></i>
+                    <div class="font_box_text">修改设备</div>
+                </md-button>
+
+                <md-button class="font_box button button-energized " v-on:click.native="to_replace"
+                           style="background-color: #834cdb">
+                    <i class="font_box_icon iconfont icon-huifu" style="color: #834cdb"></i>
+                    <div class="font_box_text">更换设备</div>
+                </md-button>
+                <md-button class="font_box button button-energized " v-on:click.native="to_recovery"
+                           style="background-color: #11c1f3">
+                    <i class="font_box_icon iconfont icon-huifu_icon" style="color: #11c1f3"></i>
+                    <div class="font_box_text">恢复出厂设置</div>
+                </md-button>
+                <md-button class="font_box button button-energized " v-on:click.native="to_parameter"
+                           style="background-color: #649df7">
+                    <i class="font_box_icon iconfont icon-shezhishedingpeizhichilun" style="color: #649df7"></i>
+                    <div class="font_box_text">参数设置</div>
+                </md-button>
+                <md-button class="font_box button button-energized " v-on:click.native="to_local"
+                           style="background-color: #f8c724">
+                    <i class="font_box_icon iconfont icon-caozuo1" style="color: #f8c724"></i>
+                    <div class="font_box_text">本地操作</div>
+                </md-button>
+                <md-button class="font_box button button-energized " v-on:click.native="to_fault"
+                           style="background-color: #00a5a9">
+                    <i class="font_box_icon iconfont icon-xueqianzhenduan" style="color: #00a5a9"></i>
+                    <div class="font_box_text">故障信息</div>
+                </md-button>
+            </div>
+        </div>
+    </div>
+</script><!--首页-->
+<script type="text/x-template" id="add">
+    <div class="page has-navbar has-tabbar" v-nav="{hideNavbar: true}" v-tabbar-menu-index="0">
+        <div class="page-content ">
+            <list class="list-ios">
+                <Device></Device>
+                <von-toggle style="padding-left: 13px" :text="indoor" v-model="indoor_bool"></von-toggle>
+                <von-toggle style="padding-left: 13px" :text="supply" v-model="supply_bool"></von-toggle>
+                <von-toggle style="padding-left: 13px" :text="backwater_temperature"
+                            v-model="backwater_temperature_bool"></von-toggle>
+                <von-toggle style="padding-left: 13px" :text="backwater_difference"
+                            v-model="backwater_difference_bool"></von-toggle>
+
+                <item class="item-icon-left" style="padding-left: 12px">
+                    节能类型
+                    <span class="item-note">非节能</span>
+                </item>
+                <item class="item-icon-left" style="padding-left: 12px">
+                    供暖类型
+                    <span class="item-note">地热</span>
+                </item>
+                <item class="item-icon-left" style="padding-left: 12px">
+                    居民类型
+                    <span class="item-note">居民</span>
+                </item>
+            </list>
+            <div class=" padding">
+                <md-button class="button button-positive button-block" @click.native="submit">
+                    确认添加
+                </md-button>
+            </div>
+
+        </div>
+    </div>
+</script><!--添加设备-->
+<script type="text/x-template" id="system">
+    <div class="page has-navbar has-tabbar" v-nav="{ title: '设备选择',showBackButton:true }">
+        <div class="page-content ">
+            <list class="list-ios">
+                <item style="padding: 1px 0px">
+                    <cascade :fields="systems" :data="systems_data" :value="systems_value" :on-change="onChange"
+                             class=""></cascade>
+                </item>
+                <item style="padding: 1px 0px">
+                    <cascade :fields="fields" :data="fields_data" :value="fields_value" :on-change="onChange"
+                             class=""></cascade>
+                </item>
+                <von-input style="padding: 1px 0px"
+                           type="text"
+                           placeholder="请输入CAN地址"
+                           label="CAN地址" >
+                </von-input>
+            </list>
+            <div class=" padding">
+                <md-button class="button button-positive button-block" @click.native="submit">
+                    确认
+                </md-button>
+            </div>
+
+        </div>
+    </div>
+</script><!--供热系统选择-->
+<script type="text/x-template" id="eid">
+    <div class="page has-navbar has-tabbar" v-nav="{hideNavbar: true}" v-tabbar-menu-index="0">
+        <div class="page-content ">
+            <list class="list-ios">
+                <Device></Device>
+                <von-toggle style="padding-left: 13px" :text="indoor" v-model="indoor_bool"></von-toggle>
+                <von-toggle style="padding-left: 13px" :text="supply" v-model="supply_bool"></von-toggle>
+                <von-toggle style="padding-left: 13px" :text="backwater_temperature"
+                            v-model="backwater_temperature_bool"></von-toggle>
+                <von-toggle style="padding-left: 13px" :text="backwater_difference"
+                            v-model="backwater_difference_bool"></von-toggle>
+
+                <item style="padding: 1px 0px">
+                    <cascade :fields="energy" :data="energy_data" :value="energy_value" :on-change="onChange"
+                             class=""></cascade>
+                </item>
+                <item style="padding: 1px 0px">
+                    <cascade :fields="heating" :data="heating_data" :value="heating_value" :on-change="onChange"
+                             class=""></cascade>
+                </item>
+                <item style="padding: 1px 0px">
+                    <cascade :fields="resident" :data="resident_data" :value="resident_value" :on-change="onChange"
+                             class=""></cascade>
+                </item>
+            </list>
+            <div class=" padding">
+                <md-button class="button button-positive button-block" @click.native="submit">
+                    确认修改
+                </md-button>
+            </div>
+
+        </div>
+    </div>
+</script><!--修改设备-->
+<script type="text/x-template" id="replace">
+    <div class="page has-navbar has-tabbar" v-nav="{hideNavbar: true}" v-tabbar-menu-index="0">
+        <div class="page-content ">
+            <list class="list-ios">
+                <Device></Device>
+                <von-input
+                        type="text"
+                        placeholder="新设备CAN地址"
+                        label="新设备CAN地址">
+                </von-input>
+            </list>
+            <div class=" padding">
+                <md-button class="button button-positive button-block" @click.native="submit">
+                    确认更换
+                </md-button>
+            </div>
+
+        </div>
+    </div>
+</script><!--更换设备-->
+<script type="text/x-template" id="recovery">
+    <div class="page has-navbar has-tabbar" v-nav="{hideNavbar: true}" v-tabbar-menu-index="0">
+        <div class="page-content ">
+            <list class="list-ios">
+                <Device style="margin-bottom: 1px"></Device>
+                <list>
+                    <item class="item-icon-right" >
+                        是否采集室内温度
+                        <span class="item-note" v-text="indoor_bool?'采集':'否'" ></span>
+                        <span class="icon ion-ios-arrow-right"></span>
+                    </item>
+                    <item class="item-icon-right" >
+                        是否采集供水温度
+                        <span class="item-note" v-text="for_bool?'采集':'否'"></span>
+                        <span class="icon ion-ios-arrow-right"></span>
+                    </item>
+                    <item class="item-icon-right" >
+                        是否采集回水温度
+                        <span class="item-note"  v-text="back?'采集':'否'">否</span>
+                        <span class="icon ion-ios-arrow-right"></span>
+                    </item>
+                    <item class="item-icon-right" >
+                        是否采集供回水压差
+                        <span class="item-note" v-text="difference?'采集':'否'">否</span>
+                        <span class="icon ion-ios-arrow-right"></span>
+                    </item>
+                    <item class="item-icon-right" >
+                        远程/就地位
+                        <span class="item-note" v-text="state?'采集':'否'">远程</span>
+                        <span class="icon ion-ios-arrow-right"></span>
+                    </item>
+                </list>
+            </list>
+            <div class=" padding">
+                <md-button class="button button-positive button-block" @click.native="submit">
+                    确认恢复出厂设置
+                </md-button>
+            </div>
+
+        </div>
+    </div>
+</script><!--恢复出厂设置-->
+<script type="text/x-template" id="parameter">
+    <div class="page has-navbar has-tabbar" v-nav="{hideNavbar: true}" v-tabbar-menu-index="0">
+        <div class="page-content ">
+            <list class="list-ios">
+                <Device></Device>
+                <von-toggle style="padding-left: 13px" :text="indoor" v-model="indoor_bool"></von-toggle>
+                <von-toggle style="padding-left: 13px" :text="supply" v-model="supply_bool"></von-toggle>
+                <von-toggle style="padding-left: 13px" :text="backwater_temperature"
+                            v-model="backwater_temperature_bool"></von-toggle>
+                <von-toggle style="padding-left: 13px" :text="backwater_difference"
+                            v-model="backwater_difference_bool"></von-toggle>
+            </list>
+            <div class=" padding">
+                <md-button class="button button-positive button-block" @click.native="submit">
+                    确认设置
+                </md-button>
+            </div>
+
+        </div>
+    </div>
+</script><!--参数设置-->
+<script type="text/x-template" id="local">
+    <div class="page has-navbar has-tabbar" v-nav="{hideNavbar: true}" v-tabbar-menu-index="0">
+        <div class="page-content ">
+            <tabs :tab-items="tabs" :tab-index="tabIndex" :on-tab-click="onTabClick"></tabs>
+            <div class="page-content" style="padding-top: 2.3rem" v-if="tabIndex==0">
+                <list class="list-ios">
+                    <Device></Device>
+                    <von-toggle style="padding-left: 13px" :text="state" v-model="state_bool"></von-toggle>
+                    <von-range disabled="true"
+                            v-model="volume"
+                            :min="min"
+                            :max="max"
+                            theme="balanced">
+
+                        <i class="" slot="text-left" style="padding-left: 13px">阀门开度</i>
+                        <i class="" slot="text-right" style="padding-left: 13px"> {{ volume }}</i>
+                    </von-range>
+                </list>
+                <div class=" padding">
+                    <md-button class="button button-positive button-block " :class="state_bool ? '' : 'button-royal' " @click.native="submit">
+                        确认修改
+                    </md-button>
+                </div>
+            </div>
+            <div class="page-content" style="padding-top: 2.3rem" v-if="tabIndex==1">
+                <list class="list-ios">
+                    <Device></Device>
+                    <von-toggle style="padding-left: 13px" :text="state" v-model="state_bool"></von-toggle>
+                </list>
+                <div class=" padding">
+                    <md-button class="button button-positive button-block"  :class="state_bool ? '' : 'button-royal' " @click.native="submit2">
+                        确认自检
+                    </md-button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</script><!--本地操作-->
+<script type="text/x-template" id="fault">
+    <div class="page has-navbar has-tabbar" v-nav="{hideNavbar: true}" v-tabbar-menu-index="0">
+        <div class="page-content">
+            <list class="list-ios">
+                <Device></Device>
+            </list>
+            <div class=" padding">
+                <md-button class="button button-positive button-block" @click.native="submit">
+                    查看信息
+                </md-button>
+            </div>
+        </div>
+    </div>
+</script><!--故障诊断-->
+<script type="text/x-template" id="data">
+    <div class="page has-navbar has-tabbar" v-nav="{hideNavbar: true}" v-tabbar-menu-index="1">
+        <div class="page-content ">
+            <tabs :tab-items="tabs" :tab-index="tabIndex" :on-tab-click="onTabClick"></tabs>
+            <div style="padding-top: 1.2rem;" v-if="tabIndex==0">
+                <Device></Device>
+                <div style="text-align: center;font-size: 16px;margin-top: 10px">基础</div>
+                <list>
+                    <item>
+                        序列号
+                        <span class="item-note">序列号 </span>
+                    </item>
+                    <item>
+                        CAN地址
+                        <span class="item-note">CAN地址 </span>
+                    </item>
+                    <item>
+                        位置信息
+                        <span class="item-note">位置信息 </span>
+                    </item>
+                    <item>
+                        节能类型
+                        <span class="item-note">节能 </span>
+                    </item>
+                    <item>
+                        供热类型
+                        <span class="item-note">地热 </span>
+                    </item>
+                    <item>
+                        用户类型
+                        <span class="item-note">居民 </span>
+                    </item>
+                </list>
+                <div style="text-align: center;font-size: 16px;margin-top: 10px">工艺</div>
+                <list>
+                    <item>
+                        供回水平均温度
+                        <span class="item-note">60℃ </span>
+                    </item>
+                    <item>
+                        回水温度
+                        <span class="item-note">70℃ </span>
+                    </item>
+                    <item>
+                        室内温度
+                        <span class="item-note">20℃ </span>
+                    </item>
+                    <item>
+                        供回水压差
+                        <span class="item-note"> </span>
+                    </item>
+                </list>
+            </div>
+            <div style="padding-top:  1.2rem;" v-if="tabIndex==1">
+                <Device></Device>
+                <router-view></router-view>
+            </div>
+        </div>
+    </div>
+</script><!--数据展示-->
+<script type="text/x-template" id="sidebar">
+    <div class="page has-navbar" v-nav="{hideNavbar: true}" v-tabbar-menu-index="2">
+        <div class="page-content">
+            <list>
+                <item class="item-icon-right" @click.native="password">
+                    密码修改
+                    <span class="icon ion-ios-arrow-right"></span>
+                </item>
+            </list>
+            <div class="padding">
+                <md-button class="button button-positive button-block" @click.native="signout">
+                    退出登陆
+                </md-button>
+            </div>
+
+        </div>
+    </div>
+</script><!--个人中心-->
+<script type="text/x-template" id="data_charts">
+    <div id="myChart" style="width:100%;height: 300px"></div>
+</script><!--数据展示/图标-->
+<script type="text/x-template" id="signin">
+    <div class="page has-navbar " v-nav="{hideNavbar: true}" id="signin_page">
+        <div class="page-content ">
+            <div class="padding" style="margin-top: 3rem;padding-left: 20px;padding-right: 20px">
+                <div class="username">
+                    <div class="iconfont icon-geren username_a"></div>
+                    <von-input class="username_b"
+                               type="text"
+                               placeholder="用户名/手机/邮箱">
+                    </von-input>
+                </div>
+                <div class="username">
+                    <div class="iconfont icon-suo1 username_a"></div>
+                    <von-input class="username_b"
+                            type="password"
+                            placeholder="请输入密码">
+                    </von-input>
+                </div>
+                <md-button class="button button-positive button-block" style="margin-left:10px;margin-right:10px;height: 50px;line-height: 50px;border-radius: 50px" @click.native="signin">
+                    登陆
+                </md-button>
+            </div>
+
+        </div>
+    </div>
+</script><!--登陆-->
+<script type="text/x-template" id="password">
+    <div class="page has-navbar" v-nav="{ title: '修改密码',showBackButton:true }" id="password_page">
+        <div class="page-content ">
+            <von-input
+                    type="text"
+                    label="旧密码"
+                    placeholder="请输入旧密码">
+            </von-input>
+            <von-input
+                    type="password"
+                    label="新密码"
+                    placeholder="请输入新密码">
+            </von-input>
+            <von-input
+                    type="password"
+                    label="确认新密码"
+                    placeholder="请再次输入新密码">
+            </von-input>
+            <div class="padding">
+                <md-button class="button button-positive button-block" @click.native="eidPassword">
+                    确认修改
+                </md-button>
+            </div>
+        </div>
+    </div>
+</script><!--密码修改-->
+<script type="text/x-template" id="device">
+    <item class="item-icon-right" style="padding-left: 13px" v-on:click.native="selection_device">
+        当前设备
+        <span class="item-note" v-text="device"></span>
+        <span class="icon ion-ios-arrow-right"></span>
+    </item>
+</script><!--添加设备-->
+<script src="js/axios.js"></script>
+<script src="js/vue.js"></script>
+<script src="js/vue-router.js"></script>
+<script src="js/vuex.min.js"></script>
+<script src="js/vonic.min.js"></script>
+<script src="js/echarts.min.js"></script>
+<script src="Component/ZnComponent.js"></script>
+<script src="store/index.js"></script>
+<script src="route/index.js"></script>
+</body>
+</html>
